@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thread Dump Doctor</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%23a8c7fa'/><path fill='none' stroke='%23001a41' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='M3 13h3l2-4 3 8 3-6 2 2h5'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined" rel="stylesheet">
+  <style>
+    /* =========================================================
+       Material 3 — deeper dark scheme
+       ========================================================= */
+    :root {
+      --md-sys-color-primary: #a8c7fa;
+      --md-sys-color-on-primary: #062e6f;
+      --md-sys-color-primary-container: #1f3a6b;
+      --md-sys-color-on-primary-container: #d8e2ff;
+
+      --md-sys-color-surface:                  #050608;
+      --md-sys-color-surface-container-lowest: #020203;
+      --md-sys-color-surface-container-low:    #0a0b0e;
+      --md-sys-color-surface-container:        #101115;
+      --md-sys-color-surface-container-high:   #16181d;
+      --md-sys-color-surface-container-highest:#1c1d22;
+
+      --md-sys-color-on-surface: #ebebef;
+      --md-sys-color-on-surface-variant: #b8b9c2;
+      --md-sys-color-outline: #6f7079;
+      --md-sys-color-outline-variant: #2a2b32;
+
+      --md-sys-color-error:           #ff8a85;
+      --md-sys-color-error-container: #5a0c12;
+      --md-sys-color-on-error-container: #ffdad6;
+
+      --md-sys-color-warn:            #ffb86b;
+      --md-sys-color-warn-container:  #4a2c00;
+      --md-sys-color-on-warn-container: #ffe0b3;
+
+      --md-sys-color-info:            #a8c7fa;
+      --md-sys-color-info-container:  #1f3a6b;
+      --md-sys-color-on-info-container: #d8e2ff;
+
+      --md-sys-color-success:           #7fd897;
+      --md-sys-color-success-container: #0d3d1c;
+      --md-sys-color-on-success-container: #b8f0c5;
+
+      --md-shape-corner-xs: 4px;
+      --md-shape-corner-sm: 8px;
+      --md-shape-corner-md: 12px;
+      --md-shape-corner-lg: 16px;
+      --md-shape-corner-xl: 28px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; background: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-size: 16px; line-height: 1.55;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+      font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    }
+    code, pre, .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    /* ---- App bar ---- */
+    .top-app-bar {
+      display: flex; align-items: center; gap: 14px;
+      height: 72px; padding: 0 28px;
+      background: var(--md-sys-color-surface-container);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .top-app-bar .brand-icon {
+      width: 40px; height: 40px; border-radius: 20px;
+      background: var(--md-sys-color-primary-container);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .top-app-bar .brand-icon .material-symbols-outlined {
+      color: var(--md-sys-color-on-primary-container); font-size: 24px;
+    }
+    .top-app-bar .title {
+      font-size: 24px; font-weight: 600; letter-spacing: -0.2px;
+      color: var(--md-sys-color-on-surface);
+    }
+    .top-app-bar .sub {
+      font-size: 14px; color: var(--md-sys-color-on-surface-variant);
+      margin-left: 10px;
+    }
+    .top-app-bar .spacer { flex: 1; }
+    .top-app-bar .offline {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 6px 12px; border-radius: 999px;
+      background: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-on-success-container);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .top-app-bar .offline .material-symbols-outlined { font-size: 16px; }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 28px; }
+
+    /* ---- Drop zone ---- */
+    .dropzone {
+      background: var(--md-sys-color-surface-container-low);
+      border: 2px dashed var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-lg);
+      padding: 32px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      text-align: center;
+      transition: border-color .15s, background .15s;
+      cursor: pointer;
+    }
+    .dropzone:hover, .dropzone.drag {
+      border-color: var(--md-sys-color-primary);
+      background: var(--md-sys-color-surface-container);
+    }
+    .dropzone .icon {
+      width: 56px; height: 56px; border-radius: 28px;
+      background: var(--md-sys-color-primary-container);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dropzone .icon .material-symbols-outlined {
+      color: var(--md-sys-color-on-primary-container); font-size: 30px;
+    }
+    .dropzone h2 {
+      margin: 0; font: 600 18px 'Inter', sans-serif;
+      color: var(--md-sys-color-on-surface);
+    }
+    .dropzone p {
+      margin: 0; font-size: 14px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .dropzone input[type=file] { display: none; }
+
+    /* Selected files row */
+    .files {
+      margin-top: 12px;
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .file-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 12px;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-sm);
+      font: 500 13px 'JetBrains Mono', monospace;
+      color: var(--md-sys-color-on-surface);
+    }
+    .file-chip .material-symbols-outlined {
+      font-size: 18px; color: var(--md-sys-color-primary);
+    }
+    .file-chip .remove {
+      cursor: pointer; color: var(--md-sys-color-on-surface-variant);
+      font-size: 18px; padding: 2px;
+    }
+    .file-chip .remove:hover { color: var(--md-sys-color-error); }
+    .file-chip .size {
+      font-size: 12px; color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* Action row */
+    .actions {
+      margin-top: 18px;
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 0; cursor: pointer;
+      height: 44px; padding: 0 26px;
+      border-radius: 22px;
+      font: 600 15px 'Inter', sans-serif;
+      letter-spacing: 0.1px;
+      transition: filter .15s, background .15s;
+    }
+    .btn-filled {
+      background: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+    .btn-filled:hover { filter: brightness(1.1); }
+    .btn-tonal {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+    .btn-tonal:hover { filter: brightness(1.1); }
+    .btn-text {
+      background: transparent;
+      color: var(--md-sys-color-primary);
+      padding: 0 16px;
+    }
+    .btn:disabled { opacity: .38; cursor: not-allowed; filter: none !important; }
+
+    /* ---- Verdict hero ---- */
+    .verdict-hero {
+      margin-top: 24px;
+      border-radius: var(--md-shape-corner-lg);
+      padding: 24px;
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      display: flex; gap: 20px; align-items: center;
+    }
+    .verdict-hero .badge-icon {
+      width: 56px; height: 56px; border-radius: 28px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .verdict-hero .badge-icon .material-symbols-outlined { font-size: 32px; }
+    .verdict-hero.critical .badge-icon { background: var(--md-sys-color-error-container); }
+    .verdict-hero.critical .badge-icon .material-symbols-outlined { color: var(--md-sys-color-on-error-container); }
+    .verdict-hero.warn     .badge-icon { background: var(--md-sys-color-warn-container); }
+    .verdict-hero.warn     .badge-icon .material-symbols-outlined { color: var(--md-sys-color-on-warn-container); }
+    .verdict-hero.healthy  .badge-icon { background: var(--md-sys-color-success-container); }
+    .verdict-hero.healthy  .badge-icon .material-symbols-outlined { color: var(--md-sys-color-on-success-container); }
+    .verdict-hero.info     .badge-icon { background: var(--md-sys-color-info-container); }
+    .verdict-hero.info     .badge-icon .material-symbols-outlined { color: var(--md-sys-color-on-info-container); }
+    .verdict-hero .text .verdict-label {
+      font: 600 12px 'Inter', sans-serif;
+      letter-spacing: 1.4px; text-transform: uppercase;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .verdict-hero .text .headline {
+      margin-top: 6px;
+      font: 600 26px/1.3 'Inter', sans-serif;
+      letter-spacing: -0.3px;
+      color: var(--md-sys-color-on-surface);
+    }
+    .verdict-hero .text .meta {
+      margin-top: 10px;
+      font-size: 14px; color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* ---- Findings ---- */
+    .findings { margin-top: 16px; display: grid; gap: 12px; }
+    .card {
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-md);
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px;
+      border-left: 4px solid transparent;
+    }
+    .card.critical .card-header { border-left-color: var(--md-sys-color-error); }
+    .card.warn     .card-header { border-left-color: var(--md-sys-color-warn); }
+    .card.info     .card-header { border-left-color: var(--md-sys-color-info); }
+
+    .card .sev-icon { font-size: 24px; flex-shrink: 0; }
+    .card.critical .sev-icon { color: var(--md-sys-color-error); }
+    .card.warn     .sev-icon { color: var(--md-sys-color-warn); }
+    .card.info     .sev-icon { color: var(--md-sys-color-info); }
+
+    .card-title {
+      flex: 1;
+      font: 600 17px/1.4 'Inter', sans-serif;
+      letter-spacing: -0.1px;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .sev-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 30px; padding: 0 14px;
+      border-radius: 8px;
+      font: 700 12px 'Inter', sans-serif;
+      letter-spacing: .6px; text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .sev-label .material-symbols-outlined { font-size: 17px; }
+    .sev-label.critical {
+      background: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+    }
+    .sev-label.warn {
+      background: var(--md-sys-color-warn-container);
+      color: var(--md-sys-color-on-warn-container);
+    }
+    .sev-label.info {
+      background: var(--md-sys-color-info-container);
+      color: var(--md-sys-color-on-info-container);
+    }
+    .sev-label.healthy {
+      background: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-on-success-container);
+    }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 30px; padding: 0 14px;
+      border-radius: 8px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface-variant);
+      font: 600 13px 'Inter', sans-serif;
+      letter-spacing: .2px;
+      flex-shrink: 0;
+    }
+    .chip .material-symbols-outlined { font-size: 17px; }
+    .chip.count {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      border-color: transparent;
+    }
+
+    .card-body {
+      padding: 0 18px 18px 36px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .card-summary { font-size: 15px; line-height: 1.6; color: var(--md-sys-color-on-surface); }
+
+    .occurrences {
+      margin-top: 14px;
+      background: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-sm);
+      padding: 14px;
+    }
+    .occurrences h4 {
+      margin: 0 0 10px;
+      font: 700 12px 'Inter', sans-serif;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .occurrences h4 .material-symbols-outlined { font-size: 17px; }
+    .occurrences ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+    .occurrences li {
+      font: 500 14px/1.5 'JetBrains Mono', monospace;
+      color: var(--md-sys-color-on-surface);
+      padding-left: 24px; position: relative;
+    }
+    .occurrences li .material-symbols-outlined {
+      position: absolute; left: 0; top: 1px;
+      font-size: 17px; color: var(--md-sys-color-primary);
+    }
+
+    .advice {
+      margin-top: 14px;
+      border-left: 3px solid var(--md-sys-color-primary);
+      background: var(--md-sys-color-surface-container-low);
+      border-radius: var(--md-shape-corner-sm);
+      padding: 14px 16px;
+      font-size: 14px; line-height: 1.6;
+      color: var(--md-sys-color-on-surface);
+      display: flex; gap: 12px;
+    }
+    .advice .label {
+      font: 700 12px 'Inter', sans-serif;
+      letter-spacing: .8px; text-transform: uppercase;
+      color: var(--md-sys-color-primary);
+      margin-bottom: 4px;
+    }
+    .advice .material-symbols-outlined {
+      color: var(--md-sys-color-primary); font-size: 22px; flex-shrink: 0;
+    }
+
+    .evidence { margin-top: 14px; }
+    .evidence summary {
+      cursor: pointer; user-select: none;
+      color: var(--md-sys-color-primary);
+      font: 600 14px 'Inter', sans-serif;
+      padding: 6px 0;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .evidence summary::marker { content: ''; }
+    .evidence summary::before {
+      content: '▸'; display: inline-block; margin-right: 4px;
+      transition: transform .15s;
+    }
+    .evidence[open] summary::before { transform: rotate(90deg); }
+    .evidence pre {
+      margin: 10px 0 0; padding: 14px;
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-sm);
+      overflow-x: auto;
+      font: 500 13px/1.6 'JetBrains Mono', monospace;
+      color: var(--md-sys-color-on-surface);
+      max-height: 400px;
+    }
+
+    .empty {
+      margin-top: 24px;
+      padding: 28px; text-align: center;
+      font-size: 15px;
+      color: var(--md-sys-color-on-surface-variant);
+      background: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-shape-corner-md);
+    }
+    .loader {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid var(--md-sys-color-outline-variant);
+      border-top-color: var(--md-sys-color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-app-bar">
+  <div class="brand-icon"><span class="material-symbols-outlined">stethoscope</span></div>
+  <span class="title">Thread Dump Doctor</span>
+  <span class="sub">Single-page · runs entirely in your browser</span>
+  <span class="spacer"></span>
+  <span class="offline"><span class="material-symbols-outlined">lock</span>100% offline</span>
+</div>
+
+<main>
+  <label class="dropzone" id="dropzone" for="file-input">
+    <div class="icon"><span class="material-symbols-outlined">upload_file</span></div>
+    <h2>Upload a thread dump</h2>
+    <p>Drag &amp; drop, or click to pick a <code>jstack</code> / <code>kill -3</code> output (.txt). For diff mode, drop two files.</p>
+    <input id="file-input" type="file" accept=".txt,text/plain" multiple>
+  </label>
+
+  <div id="files" class="files"></div>
+
+  <div class="actions">
+    <button id="go" class="btn btn-filled" onclick="run()" disabled>
+      <span class="material-symbols-outlined">play_arrow</span> Analyze
+    </button>
+    <button id="diff" class="btn btn-tonal" onclick="runDiff()" disabled>
+      <span class="material-symbols-outlined">difference</span> Run two-dump diff
+    </button>
+    <button id="clear" class="btn btn-text" onclick="clearAll()">
+      <span class="material-symbols-outlined">refresh</span> Clear
+    </button>
+  </div>
+
+  <div id="out"></div>
+</main>
+
+<script>
+/* ============================================================
+   PARSER
+   ============================================================ */
+const THREAD_HEADER_RE = /^"([^"]+)"/;
+const STATE_RE = /java\.lang\.Thread\.State:\s+(\S+)(?:\s+\(([^)]+)\))?/;
+const WAITING_TO_LOCK_RE = /- waiting to lock\s+<([^>]+)>\s+\(a ([^)]+)\)/;
+const PARKING_TO_WAIT_RE = /- parking to wait for\s+<([^>]+)>\s+\(a ([^)]+)\)/;
+const WAITING_ON_RE = /- waiting on\s+<([^>]+)>\s+\(a ([^)]+)\)/;
+const LOCKED_RE = /- locked\s+<([^>]+)>\s+\(a ([^)]+)\)/;
+const DAEMON_RE = /\bdaemon\b/;
+const NID_RE = /nid=0x([0-9a-fA-F]+)/;
+const TID_RE = /tid=0x([0-9a-fA-F]+)/;
+
+function parseDump(text) {
+  const threads = [];
+  let current = null;
+  let deadlock_block = null;
+
+  const m = text.match(/(Found one Java-level deadlock:[\s\S]*?)(?=\n\n[A-Z]|$)/);
+  if (m) deadlock_block = m[1];
+
+  for (const line of text.split('\n')) {
+    const hm = line.match(THREAD_HEADER_RE);
+    if (hm) {
+      if (current) threads.push(current);
+      current = {
+        name: hm[1], raw_header: line,
+        daemon: DAEMON_RE.test(line),
+        tid: (line.match(TID_RE) || [])[1] || null,
+        nid: (line.match(NID_RE) || [])[1] || null,
+        state: null, state_detail: null,
+        stack: [],
+        waiting_to_lock: null, parking_for: null, waiting_on: null,
+        locks_held: [],
+      };
+      continue;
+    }
+    if (!current) continue;
+
+    const sm = line.match(STATE_RE);
+    if (sm) { current.state = sm[1]; current.state_detail = sm[2] || null; continue; }
+    const wm = line.match(WAITING_TO_LOCK_RE);
+    if (wm) { current.waiting_to_lock = [wm[1], wm[2]]; continue; }
+    const pm = line.match(PARKING_TO_WAIT_RE);
+    if (pm) { current.parking_for = [pm[1], pm[2]]; continue; }
+    const wom = line.match(WAITING_ON_RE);
+    if (wom) { current.waiting_on = [wom[1], wom[2]]; continue; }
+    const lm = line.match(LOCKED_RE);
+    if (lm) { current.locks_held.push([lm[1], lm[2]]); continue; }
+    const stripped = line.trim();
+    if (stripped.startsWith('at ')) current.stack.push(stripped.slice(3));
+  }
+  if (current) threads.push(current);
+  return { threads, deadlock_block, raw_text: text };
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const FRAMEWORK_IDLE_PATTERNS = [
+  'ThreadPoolExecutor.getTask',
+  'LinkedBlockingQueue.take', 'LinkedBlockingQueue.poll',
+  'SynchronousQueue.poll',
+  'ScheduledThreadPoolExecutor$DelayedWorkQueue.take',
+  'Selector.select', 'EPollSelectorImpl.doSelect',
+  'KQueueSelectorImpl.doSelect', 'WindowsSelectorImpl.poll',
+  'ConnectionPool.cleanup', 'ForkJoinPool.awaitWork',
+  'ForkJoinPool.scan', 'Thread.sleep',
+];
+const BLOCKING_IO_PATTERNS = [
+  'SocketInputStream.socketRead', 'SocketInputStream.read',
+  'NioSocketImpl.read', 'Http2Connection.readPings',
+  'RealConnection.connectSocket', 'okhttp3.internal.http2.Http2Reader',
+  'OracleSocketReader', 'PostgresStream.receiveChar',
+  'MysqlIO.readFully', 'PreparedStatement.execute',
+];
+const CALLBACK_FRAMES = [
+  'CompletableFuture$UniApply.tryFire', 'CompletableFuture$UniCompose.tryFire',
+  'CompletableFuture$UniAccept.tryFire', 'CompletableFuture$UniRun.tryFire',
+  'CompletableFuture$UniWhenComplete.tryFire', 'CompletableFuture$UniHandle.tryFire',
+  'CompletableFuture.postComplete', 'CompletableFuture.uniApplyStage',
+  'CompletableFuture.uniComposeStage',
+];
+const WORKER_RUN_FRAMES = [
+  'ThreadPoolExecutor$Worker.run', 'ThreadPoolExecutor.runWorker',
+  'ForkJoinWorkerThread.run', 'ForkJoinPool.runWorker',
+];
+
+function anyMatch(frames, patterns) {
+  for (const f of frames) for (const p of patterns) if (f.includes(p)) return true;
+  return false;
+}
+function isFrameworkIdle(t) {
+  if (t.state !== 'WAITING' && t.state !== 'TIMED_WAITING') return false;
+  return anyMatch(t.stack.slice(0, 5), FRAMEWORK_IDLE_PATTERNS);
+}
+function isParkSignaller(t) {
+  if (t.parking_for && t.parking_for[1].includes('CompletableFuture$Signaller')) return true;
+  return t.stack.slice(0, 6).some(f => f.includes('CompletableFuture$Signaller'));
+}
+function hasJoinOrGetFrame(t) {
+  for (let i = 0; i < t.stack.length; i++) {
+    const f = t.stack[i];
+    if (f.includes('CompletableFuture.join') || f.includes('CompletableFuture.get')) return i;
+  }
+  return null;
+}
+function poolName(name) {
+  if (!name) return null;
+  let m = name.match(/(pool-\d+)-thread-\d+/);
+  if (m) return m[1];
+  m = name.match(/(.+?)[- ]\d+$/);
+  if (m) return m[1].trim();
+  return name;
+}
+
+/* ============================================================
+   DETECTORS
+   ============================================================ */
+function jvmDeadlock(dump) {
+  if (!dump.deadlock_block) return null;
+  return {
+    title: 'JVM-reported deadlock',
+    severity: 'critical',
+    summary: 'The JVM itself detected a deadlock cycle.',
+    details: [dump.deadlock_block.trim()],
+    advice: 'Inspect the listed lock owners; this is a hard deadlock.',
+  };
+}
+
+function lockCycle(dump) {
+  const holder = new Map();
+  for (const t of dump.threads)
+    for (const [addr] of t.locks_held) holder.set(addr, t);
+
+  const edges = new Map();
+  for (const t of dump.threads) {
+    if (t.state === 'BLOCKED' && t.waiting_to_lock) {
+      const [addr, klass] = t.waiting_to_lock;
+      const h = holder.get(addr);
+      if (h && h !== t) edges.set(t.name, [h.name, addr, klass]);
+    }
+  }
+
+  const findings = [];
+  const seen = new Set();
+  for (const start of edges.keys()) {
+    if (seen.has(start)) continue;
+    const path = [];
+    let cur = start;
+    while (cur && !path.includes(cur) && edges.has(cur)) {
+      path.push(cur);
+      cur = edges.get(cur)[0];
+    }
+    if (cur && path.includes(cur)) {
+      const cycle = path.slice(path.indexOf(cur)).concat(cur);
+      for (const n of cycle) seen.add(n);
+      const details = [];
+      for (const a of cycle.slice(0, -1)) {
+        const e = edges.get(a);
+        if (e) details.push(`${a} --(waits for ${e[2]} @ ${e[1]})--> ${e[0]}`);
+      }
+      findings.push({
+        title: 'Lock-cycle deadlock',
+        severity: 'critical',
+        summary: `${cycle.length - 1} threads in a BLOCKED-on-monitor cycle.`,
+        details,
+        advice: 'Break the lock-ordering inversion; never hold lock A while acquiring lock B if any other thread holds B then A.',
+      });
+    }
+  }
+  return findings;
+}
+
+function triangleBPoolStarvation(dump) {
+  const pools = new Map();
+  for (const t of dump.threads) {
+    const p = poolName(t.name);
+    if (!p) continue;
+    if (!pools.has(p)) pools.set(p, []);
+    pools.get(p).push(t);
+  }
+  const findings = [];
+  for (const [pname, members] of pools) {
+    if (members.length < 2) continue;
+    const parked = members.filter(isParkSignaller);
+    if (parked.length < 2) continue;
+    const active = members.filter(t =>
+      t.state === 'RUNNABLE' &&
+      t.stack.some(f => WORKER_RUN_FRAMES.some(w => f.includes(w)))
+    );
+    if (parked.length >= Math.max(2, Math.floor(members.length / 2)) && active.length === 0) {
+      findings.push({
+        title: `Pool self-starvation (async) in '${pname}'`,
+        severity: 'critical',
+        summary: `${parked.length}/${members.length} workers in pool '${pname}' are parked on CompletableFuture$Signaller; no worker is running real work.`,
+        details: parked.slice(0, 20).map(t => ({
+          thread: t.name, state: t.state,
+          top: t.stack.slice(0, 6),
+          join_or_get_at_frame: hasJoinOrGetFrame(t),
+        })),
+        advice: 'Drop the .join()/.get() that blocks a worker waiting for a future whose completion needs another worker from the same (or upstream) pool. Use *Async variants and return CompletionStage all the way up.',
+      });
+    }
+  }
+  return findings;
+}
+
+function inCallbackJoin(dump) {
+  const findings = [];
+  for (const t of dump.threads) {
+    const inCb = t.stack.some(f => CALLBACK_FRAMES.some(c => f.includes(c)));
+    if (!inCb) continue;
+    const idx = hasJoinOrGetFrame(t);
+    if (idx === null) continue;
+    findings.push({
+      title: 'In-callback .join()/.get() — callback hijacking',
+      severity: 'critical',
+      summary: `Thread '${t.name}' is executing a CompletableFuture callback AND blocking on .join()/.get() at frame ${idx}.`,
+      details: [{
+        thread: t.name, state: t.state,
+        join_frame: t.stack[idx],
+        top: t.stack.slice(0, idx + 2),
+      }],
+      advice: 'Replace .thenApply/.thenCompose with their *Async variants for the I/O-adjacent stage, OR remove the .join() and propagate the CompletionStage upward.',
+    });
+  }
+  return findings;
+}
+
+function callbackThreadHijack(dump) {
+  const inds = ['OkHttp', 'Netty', 'epoll', 'kqueue', 'nio'];
+  const findings = [];
+  for (const t of dump.threads) {
+    if (!inds.some(i => (t.name || '').includes(i))) continue;
+    if (t.state !== 'RUNNABLE' && t.state !== 'WAITING') continue;
+    const inCb = t.stack.some(f => CALLBACK_FRAMES.some(c => f.includes(c)));
+    if (!inCb) continue;
+    findings.push({
+      title: 'Upstream I/O thread running user callback',
+      severity: 'warn',
+      summary: `'${t.name}' is executing CompletableFuture continuations on the I/O worker thread. Long callbacks here starve the pool.`,
+      details: [{ thread: t.name, top: t.stack.slice(0, 8) }],
+      advice: 'Use thenApplyAsync / thenComposeAsync to move the continuation to a compute pool (default ForkJoinPool.commonPool() is fine).',
+    });
+  }
+  return findings;
+}
+
+function socketReadStarvation(dump) {
+  const byPool = new Map();
+  for (const t of dump.threads) {
+    if (t.state !== 'RUNNABLE') continue;
+    if (!anyMatch(t.stack.slice(0, 6), BLOCKING_IO_PATTERNS)) continue;
+    const p = poolName(t.name) || '<unknown>';
+    if (!byPool.has(p)) byPool.set(p, []);
+    byPool.get(p).push(t);
+  }
+  const findings = [];
+  for (const [pname, members] of byPool) {
+    if (members.length >= 3) {
+      findings.push({
+        title: `I/O-pool starvation in '${pname}'`,
+        severity: 'critical',
+        summary: `${members.length} threads in pool '${pname}' are RUNNABLE but stuck inside a blocking socket read.`,
+        details: members.slice(0, 10).map(t => ({ thread: t.name, top: t.stack.slice(0, 5) })),
+        advice: 'Set explicit connect/read timeouts on the HTTP/DB client; add a circuit breaker; verify pool size vs concurrency.',
+      });
+    }
+  }
+  return findings;
+}
+
+function poolSaturation(dump) {
+  const pools = new Map();
+  for (const t of dump.threads) {
+    const p = poolName(t.name);
+    if (!p) continue;
+    if (!pools.has(p)) pools.set(p, []);
+    pools.get(p).push(t);
+  }
+  const findings = [];
+  for (const [pname, members] of pools) {
+    if (members.length < 3) continue;
+    let idle = 0, runnable = 0, parkedF = 0;
+    for (const t of members) {
+      if (isFrameworkIdle(t)) idle++;
+      if (t.state === 'RUNNABLE') runnable++;
+      if (isParkSignaller(t)) parkedF++;
+    }
+    const active = runnable + parkedF;
+    if (idle === 0 && active >= Math.max(3, Math.floor(0.8 * members.length))) {
+      const sev = active === members.length ? 'critical' : 'warn';
+      findings.push({
+        title: `Pool '${pname}' saturated`,
+        severity: sev,
+        summary: `Pool '${pname}': ${active}/${members.length} workers active, 0 idle. (RUNNABLE=${runnable}, parked-on-future=${parkedF})`,
+        details: members.slice(0, 15).map(t => ({ thread: t.name, state: t.state, top: t.stack.slice(0, 3) })),
+        advice: "Pool is at capacity. Verify max size, check that workers aren't blocking on futures completed by the same pool, and watch for unbounded queue backlogs.",
+      });
+    }
+  }
+  return findings;
+}
+
+function commonPoolHijack(dump) {
+  const common = dump.threads.filter(t => t.name.startsWith('ForkJoinPool.commonPool'));
+  if (!common.length) return [];
+  const busy = common.filter(t => t.state === 'RUNNABLE' || isParkSignaller(t));
+  if (busy.length >= Math.max(2, Math.floor(common.length / 2))) {
+    return [{
+      title: 'ForkJoinPool.commonPool() heavily occupied',
+      severity: 'warn',
+      summary: `${busy.length}/${common.length} commonPool workers are busy/parked. Heavy use of commonPool() can stall unrelated parallelStream() and other JDK consumers.`,
+      details: busy.slice(0, 10).map(t => ({ thread: t.name, top: t.stack.slice(0, 5) })),
+      advice: 'If a workload is sustained and large, give it a dedicated executor instead of the shared commonPool().',
+    }];
+  }
+  return [];
+}
+
+function unboundedWaits(dump) {
+  const findings = [];
+  for (const t of dump.threads) {
+    if (t.state !== 'WAITING') continue;
+    if (isFrameworkIdle(t)) continue;
+    findings.push({
+      title: 'Unbounded WAITING in user/app code',
+      severity: 'warn',
+      summary: `'${t.name}' WAITING with no timeout.`,
+      details: [{ thread: t.name, top: t.stack.slice(0, 6) }],
+      advice: 'Prefer await(timeout) variants; add a deadline to every wait.',
+    });
+  }
+  return findings;
+}
+
+function fourBucketTriage(dump) {
+  const noise = ['GC ', 'Reference Handler', 'Finalizer', 'Signal Dispatcher',
+    'Attach Listener', 'Service Thread', 'C1 CompilerThread', 'C2 CompilerThread',
+    'VM Thread', 'VM Periodic', 'Notification Thread', 'Common-Cleaner',
+    'Sweeper thread', 'Monitor Deflation'];
+  const counts = { '1_noise':0, '2_framework_idle':0, '3_app_working':0, '4_app_stuck':0, '0_other':0 };
+  const samples = { '1_noise':[], '2_framework_idle':[], '3_app_working':[], '4_app_stuck':[], '0_other':[] };
+  for (const t of dump.threads) {
+    let bucket;
+    if (noise.some(p => t.name.startsWith(p))) bucket = '1_noise';
+    else if (isFrameworkIdle(t)) bucket = '2_framework_idle';
+    else if (t.state === 'RUNNABLE') bucket = '3_app_working';
+    else if (['WAITING','TIMED_WAITING','BLOCKED'].includes(t.state)) bucket = '4_app_stuck';
+    else bucket = '0_other';
+    counts[bucket]++;
+    samples[bucket].push(t.name);
+  }
+  return {
+    title: 'Four-bucket triage',
+    severity: 'info',
+    summary: `noise=${counts['1_noise']}  framework-idle=${counts['2_framework_idle']}  app-working=${counts['3_app_working']}  app-stuck=${counts['4_app_stuck']}`,
+    details: { counts, samples: Object.fromEntries(Object.entries(samples).map(([k, v]) => [k, v.slice(0, 8)])) },
+    advice: 'A large bucket-4 with a small bucket-3 typically means the app is stuck rather than overloaded; that\'s the pool-self-starvation signature.',
+  };
+}
+
+function stateSummary(dump) {
+  const c = {};
+  for (const t of dump.threads) c[t.state] = (c[t.state] || 0) + 1;
+  return {
+    title: 'Thread-state summary',
+    severity: 'info',
+    summary: Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k}=${v}`).join(', '),
+    details: { counts: c, total: dump.threads.length },
+    advice: '',
+  };
+}
+
+/* Two-dump diff */
+function diffDumps(a, b) {
+  const aTop = new Map(a.threads.map(t => [t.name, t.stack.slice(0, 6).join('|')]));
+  const bTop = new Map(b.threads.map(t => [t.name, t.stack.slice(0, 6).join('|')]));
+  const stuck = [];
+  for (const [name, top] of aTop) {
+    if (bTop.get(name) === top && top) stuck.push({ thread: name, top: top.split('|') });
+  }
+  const sev = stuck.length >= 5 ? 'critical' : (stuck.length ? 'warn' : 'info');
+  return {
+    title: 'Two-dump diff (no-progress check)',
+    severity: sev,
+    summary: `${stuck.length} threads have identical top frames across both dumps.`,
+    details: stuck.slice(0, 30),
+    advice: 'Threads with identical top-6 frames across dumps taken seconds apart are not making progress. Combined with pool-self-starvation / I/O-starvation signals, this is a strong confirmation of a stall.',
+  };
+}
+
+/* ============================================================
+   RUN ALL + DEDUPE
+   ============================================================ */
+function runAll(dump) {
+  const detectors = [
+    jvmDeadlock, lockCycle, triangleBPoolStarvation, inCallbackJoin,
+    callbackThreadHijack, socketReadStarvation, poolSaturation,
+    commonPoolHijack, unboundedWaits, fourBucketTriage, stateSummary,
+  ];
+  let findings = [];
+  for (const d of detectors) {
+    const out = d(dump);
+    if (out == null) continue;
+    if (Array.isArray(out)) findings.push(...out);
+    else findings.push(out);
+  }
+  return finalize(findings, dump.threads.length);
+}
+
+const SEV_RANK = { critical: 0, warn: 1, info: 2 };
+
+function dedupe(findings) {
+  const map = new Map();
+  const order = [];
+  for (const f of findings) {
+    const key = f.title || '(untitled)';
+    if (!map.has(key)) { map.set(key, []); order.push(key); }
+    map.get(key).push(f);
+  }
+  const out = [];
+  for (const key of order) {
+    const group = map.get(key);
+    if (group.length === 1) { out.push(group[0]); continue; }
+    let worst = group[0].severity || 'info';
+    for (const g of group)
+      if (SEV_RANK[g.severity] < SEV_RANK[worst]) worst = g.severity;
+    const mergedDetails = [];
+    for (const g of group) {
+      const d = g.details;
+      if (Array.isArray(d)) mergedDetails.push(...d);
+      else if (d != null) mergedDetails.push(d);
+    }
+    out.push({
+      title: key, severity: worst, count: group.length,
+      summary: `${group.length} occurrences. ${group[0].summary || ''}`.trim(),
+      occurrences: group.map(g => ({ summary: g.summary, severity: g.severity })),
+      details: mergedDetails,
+      advice: group[0].advice || '',
+    });
+  }
+  return out;
+}
+
+function finalize(findings, threadCount) {
+  findings = dedupe(findings);
+  findings.sort((a, b) => (SEV_RANK[a.severity] ?? 9) - (SEV_RANK[b.severity] ?? 9));
+  let verdict = 'healthy', headline = 'No obvious problems detected.';
+  const crit = findings.filter(f => f.severity === 'critical');
+  const warn = findings.filter(f => f.severity === 'warn');
+  if (crit.length) {
+    verdict = 'critical';
+    headline = crit[0].title + (crit[0].count > 1 ? `  (${crit[0].count}×)` : '');
+  } else if (warn.length) {
+    verdict = 'warn';
+    headline = warn[0].title + (warn[0].count > 1 ? `  (${warn[0].count}×)` : '');
+  }
+  return { verdict, headline, thread_count: threadCount, findings };
+}
+
+/* ============================================================
+   UI
+   ============================================================ */
+const SEV = {
+  critical: { icon: 'dangerous',     label: 'Critical' },
+  warn:     { icon: 'warning',       label: 'Warning'  },
+  info:     { icon: 'info',          label: 'Info'     },
+  healthy:  { icon: 'check_circle',  label: 'Healthy'  },
+};
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function sevLabel(sev) {
+  const s = SEV[sev] || SEV.info;
+  return `<span class="sev-label ${esc(sev)}">
+            <span class="material-symbols-outlined">${s.icon}</span>
+            ${s.label}
+          </span>`;
+}
+function fmtSize(n) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/* File state */
+const state = { files: [] };  // [{ name, size, text }]
+
+function renderFiles() {
+  const c = document.getElementById('files');
+  if (!state.files.length) { c.innerHTML = ''; updateButtons(); return; }
+  c.innerHTML = state.files.map((f, i) => `
+    <div class="file-chip">
+      <span class="material-symbols-outlined">description</span>
+      <span>${esc(f.name)}</span>
+      <span class="size">${esc(fmtSize(f.size))}</span>
+      <span class="material-symbols-outlined remove" onclick="removeFile(${i})">close</span>
+    </div>
+  `).join('');
+  updateButtons();
+}
+function updateButtons() {
+  document.getElementById('go').disabled = state.files.length < 1;
+  document.getElementById('diff').disabled = state.files.length !== 2;
+}
+function removeFile(i) { state.files.splice(i, 1); renderFiles(); }
+function clearAll() {
+  state.files = [];
+  document.getElementById('file-input').value = '';
+  document.getElementById('out').innerHTML = '';
+  renderFiles();
+}
+
+async function addFiles(fileList) {
+  for (const f of fileList) {
+    if (state.files.length >= 2) break;
+    const text = await f.text();
+    state.files.push({ name: f.name, size: f.size, text });
+  }
+  renderFiles();
+}
+
+/* File picker */
+document.getElementById('file-input').addEventListener('change', e => addFiles(e.target.files));
+
+/* Drag-and-drop */
+const dz = document.getElementById('dropzone');
+['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => {
+  e.preventDefault(); dz.classList.add('drag');
+}));
+['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => {
+  e.preventDefault(); dz.classList.remove('drag');
+}));
+dz.addEventListener('drop', e => {
+  if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+});
+
+/* Actions */
+function run() {
+  if (!state.files.length) return;
+  const out = document.getElementById('out');
+  out.innerHTML = '<div class="empty"><span class="loader"></span>Analyzing…</div>';
+  setTimeout(() => {
+    try {
+      const dump = parseDump(state.files[0].text);
+      const result = runAll(dump);
+      render(out, result);
+    } catch (e) {
+      out.innerHTML = `<div class="empty">Error: ${esc(e.message)}</div>`;
+    }
+  }, 30);
+}
+
+function runDiff() {
+  if (state.files.length !== 2) return;
+  const out = document.getElementById('out');
+  out.innerHTML = '<div class="empty"><span class="loader"></span>Comparing…</div>';
+  setTimeout(() => {
+    try {
+      const a = parseDump(state.files[0].text);
+      const b = parseDump(state.files[1].text);
+      const finding = diffDumps(a, b);
+      const result = {
+        verdict: finding.severity === 'critical' ? 'critical' :
+                 finding.severity === 'warn' ? 'warn' : 'healthy',
+        headline: finding.summary,
+        thread_count: `${a.threads.length} vs ${b.threads.length}`,
+        findings: [finding],
+      };
+      render(out, result);
+    } catch (e) {
+      out.innerHTML = `<div class="empty">Error: ${esc(e.message)}</div>`;
+    }
+  }, 30);
+}
+
+function render(out, data) {
+  const v = (data.verdict || 'info').toLowerCase();
+  const sev = SEV[v] || SEV.info;
+  let html = '';
+
+  html += `<div class="verdict-hero ${esc(v)}">`;
+  html += `  <div class="badge-icon"><span class="material-symbols-outlined">${sev.icon}</span></div>`;
+  html += `  <div class="text">`;
+  html += `    <div class="verdict-label">Verdict — ${esc(sev.label)}</div>`;
+  html += `    <div class="headline">${esc(data.headline || '')}</div>`;
+  html += `    <div class="meta">${esc(data.thread_count)} threads · ${(data.findings || []).length} distinct findings</div>`;
+  html += `  </div>`;
+  html += `</div>`;
+
+  if (!data.findings || !data.findings.length) {
+    html += '<div class="empty">No findings.</div>';
+    out.innerHTML = html; return;
+  }
+
+  html += '<div class="findings">';
+  for (const f of data.findings) {
+    const fs = (f.severity || 'info').toLowerCase();
+    const fsev = SEV[fs] || SEV.info;
+    html += `<div class="card ${esc(fs)}">`;
+    html += `  <div class="card-header">`;
+    html += `    <span class="material-symbols-outlined sev-icon">${fsev.icon}</span>`;
+    html += `    <div class="card-title">${esc(f.title)}</div>`;
+    html += `    ${sevLabel(fs)}`;
+    if (f.count && f.count > 1) {
+      html += `    <span class="chip count">
+                     <span class="material-symbols-outlined">format_list_numbered</span>
+                     ${f.count}× found
+                   </span>`;
+    }
+    html += `  </div>`;
+    html += `  <div class="card-body">`;
+    html += `    <div class="card-summary">${esc(f.summary || '')}</div>`;
+
+    if (f.occurrences && f.occurrences.length > 1) {
+      html += `    <div class="occurrences">`;
+      html += `      <h4><span class="material-symbols-outlined">my_location</span>Where it was seen</h4>`;
+      html += `      <ul>`;
+      for (const o of f.occurrences) {
+        html += `      <li><span class="material-symbols-outlined">chevron_right</span>${esc(o.summary || '(no summary)')}</li>`;
+      }
+      html += `      </ul>`;
+      html += `    </div>`;
+    }
+
+    if (f.advice) {
+      html += `    <div class="advice">`;
+      html += `      <span class="material-symbols-outlined">lightbulb</span>`;
+      html += `      <div>
+                       <div class="label">Recommended action</div>
+                       ${esc(f.advice)}
+                     </div>`;
+      html += `    </div>`;
+    }
+
+    if (f.details) {
+      const pretty = typeof f.details === 'string'
+        ? f.details
+        : JSON.stringify(f.details, null, 2);
+      html += `    <details class="evidence">`;
+      html += `      <summary>Evidence</summary>`;
+      html += `      <pre>${esc(pretty)}</pre>`;
+      html += `    </details>`;
+    }
+    html += `  </div></div>`;
+  }
+  html += '</div>';
+  out.innerHTML = html;
+}
+</script>
+</body>
+</html>
