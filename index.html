@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- ── Primary SEO ── -->
-  <title>Thread Dump Doctor — Free Java Thread Dump Analyzer (jstack, Deadlock, Pool)</title>
-  <meta name="description" content="Upload a Java thread dump and instantly detect deadlocks, pool saturation, I/O starvation, lock contention, and CompletableFuture self-deadlocks. Runs 100% in your browser — no data ever leaves your machine. Free and open source.">
-  <meta name="keywords" content="java thread dump analyzer, jstack analyzer, thread dump parser, deadlock detector, java deadlock, thread dump tool, jvm thread analyzer, java performance, thread pool saturation, lock contention analyzer, java debugging tool, completablefuture deadlock, forkjoinpool analyzer, jvm concurrency debugger, java thread starvation, kill -3 analyzer, visualvm alternative, java blocked threads, timed_waiting analyzer, java waiting threads">
+  <title>Thread Dump Doctor — Free Java Thread Dump Analyzer | Deadlock, jstack, Pool</title>
+  <meta name="description" content="Free browser-based Java thread dump analyzer. Detect deadlocks, thread pool saturation, I/O starvation, CompletableFuture self-deadlock, application hangs, and slow Java apps — instantly from jstack or kill -3 output. No upload. 100% private.">
+  <meta name="keywords" content="java thread dump analyzer, jstack analyzer, thread dump parser, deadlock detector, java deadlock, thread dump tool, jvm thread analyzer, java performance, thread pool saturation, lock contention analyzer, java debugging tool, completablefuture deadlock, forkjoinpool analyzer, jvm concurrency debugger, java thread starvation, kill -3 analyzer, visualvm alternative, java blocked threads, timed_waiting analyzer, java waiting threads, java application hang, java app slow, java high cpu, java thread leak, java response time slow, java latency spike, executorservice analyzer, spring boot thread dump, java 17 thread dump, java 11 thread dump, java 8 thread dump, jdbc connection pool exhaustion, database connection hung, http client blocking, okhttp deadlock, netty thread blocked, virtual thread pinning, project loom, java thread dump online, jstack online, free jstack analyzer, jcmd thread print analyzer, java blocked thread detector, java runnable threads, java stuck threads, java frozen application, spring boot hang, microservice hang debug, java gc thread analysis, java thread dump spring, java thread dump tomcat, java thread dump jetty">
   <meta name="author" content="Thread Dump Doctor">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <link rel="canonical" href="https://kushagrasri.github.io/thread-dump-doctor">
@@ -131,6 +131,86 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Thread Dump Doctor supports OpenJDK and Oracle JDK jstack output, HotSpot kill -3 signal output, and VisualVM thread dump exports. Partial support for GraalVM native image thread dumps."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is my Java application hanging or frozen?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Java application hangs are most commonly caused by deadlocks, thread pool saturation, or threads blocked on I/O with no timeout. Take a thread dump using jstack <pid> or kill -3 <pid> and analyze it with Thread Dump Doctor to identify exactly which threads are stuck and why."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is my Java application slow or has high latency?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Slow Java applications are often caused by thread pool saturation (all workers busy, requests queuing), lock contention (threads blocking each other), or I/O starvation (threads stuck waiting on database or HTTP calls). A thread dump taken during the slowdown can reveal the cause — upload it to Thread Dump Doctor for instant analysis."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I detect a deadlock in Java?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Java deadlocks can be detected by taking a thread dump with jstack <pid> and looking for 'Found one Java-level deadlock' in the output. Thread Dump Doctor automatically parses this, plus detects subtler deadlocks including CompletableFuture self-deadlock and lock-cycle deadlocks not reported by the JVM."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I analyze a Spring Boot thread dump?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Take a thread dump from your running Spring Boot application using jstack <pid> or sending a kill -3 signal. Save the output as a .txt file and upload it to Thread Dump Doctor. The tool understands Tomcat, Jetty, and Undertow thread naming conventions and correctly identifies framework-idle threads vs application threads that are stuck."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is thread pool saturation in Java?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Thread pool saturation occurs when all worker threads in a pool (like Tomcat's HTTP thread pool or a custom ExecutorService) are occupied and no idle threads remain to handle new work. New requests queue up or get rejected. A thread dump during saturation shows all threads in RUNNABLE or WAITING state with no idle workers. Thread Dump Doctor detects this automatically."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is a CompletableFuture deadlock?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A CompletableFuture deadlock (also called pool self-starvation) happens when threads in a fixed-size executor are all blocked waiting for CompletableFuture results that are queued behind them in the same pool. Since all threads are blocked, the queued tasks can never run, creating a permanent deadlock. Thread Dump Doctor specifically detects this pattern."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I generate a thread dump in Java?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "There are several ways to generate a Java thread dump: (1) jstack <pid> > dump.txt — most common method; (2) kill -3 <pid> — sends SIGQUIT, output goes to stdout/stderr; (3) jcmd <pid> Thread.print > dump.txt — modern alternative to jstack; (4) VisualVM — GUI tool with thread dump export; (5) Java Mission Control (JMC); (6) In containers: jcmd 1 Thread.print if the JVM is PID 1."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is virtual thread pinning in Java 21?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Virtual thread pinning occurs in Java 21+ (Project Loom) when a virtual thread cannot be unmounted from its carrier thread — typically because it holds a monitor lock (synchronized block) or calls native code. Pinned virtual threads block their carrier thread, reducing the scalability benefit of virtual threads. Thread Dump Doctor can identify threads in states consistent with pinning behavior."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I fix a JDBC connection pool exhaustion?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "JDBC connection pool exhaustion happens when all database connections are in use and new requests wait indefinitely. In a thread dump, this appears as multiple threads blocked on connection pool acquisition (e.g., HikariPool.getConnection). Thread Dump Doctor detects I/O starvation and pool saturation patterns. The fix typically involves increasing pool size, adding connection timeouts, or finding and fixing slow queries holding connections."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use Thread Dump Doctor offline?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Thread Dump Doctor is a single HTML file that runs entirely in the browser. Once the page has loaded, it works completely offline with no internet connection required. You can also download the standalone.html file and open it directly from your filesystem."
         }
       }
     ]
@@ -648,11 +728,76 @@
   <h3>How do I generate a thread dump?</h3>
   <p>On Linux/macOS: run <code>jstack &lt;pid&gt; &gt; dump.txt</code> or <code>kill -3 &lt;pid&gt;</code> (output goes to the JVM's stdout/stderr). On Windows: use <code>jstack &lt;pid&gt;</code> or VisualVM. In containers: use <code>jcmd &lt;pid&gt; Thread.print</code>.</p>
 
+  <h2>Common symptoms and what they mean</h2>
+
+  <h3>Java application is hanging or frozen</h3>
+  <p>An application hang usually means one of three things: a deadlock (threads waiting on each other in a cycle), thread pool saturation (all workers occupied with no capacity for new requests), or a thread stuck in an infinite loop or blocked I/O with no timeout. Take a thread dump and upload it to Thread Dump Doctor to identify which threads are stuck and what they are waiting on.</p>
+
+  <h3>Java application is slow or has high response latency</h3>
+  <p>Sudden latency spikes in Java applications are frequently caused by lock contention (threads queuing to acquire a shared lock), thread pool saturation (requests waiting in queue), or I/O starvation (threads blocking on slow database queries or HTTP calls). A thread dump taken during the slow period reveals exactly what every thread is doing at that moment.</p>
+
+  <h3>High CPU usage in Java application</h3>
+  <p>Unexpectedly high CPU in a Java process often means RUNNABLE threads are spinning in a loop (busy-wait), running excessive GC, or processing a pathological code path. A thread dump shows which RUNNABLE threads are active and what code they are executing, helping narrow down the hot path.</p>
+
+  <h3>Java thread leak</h3>
+  <p>A thread leak occurs when threads are created but never terminated, causing thread count to grow without bound until the JVM exhausts native thread limits. In a thread dump, a thread leak appears as an abnormally large number of threads, often in WAITING or TIMED_WAITING state. The four-bucket triage in Thread Dump Doctor makes this immediately visible.</p>
+
+  <h3>Intermittent failures in Java microservice</h3>
+  <p>Intermittent failures in microservices are often caused by transient thread pool saturation, timeouts cascading from a slow downstream dependency, or brief deadlocks. Taking thread dumps during failure windows and using Thread Dump Doctor's diff mode to compare a healthy and unhealthy snapshot makes the pattern visible.</p>
+
+  <h2>Framework-specific thread dump analysis</h2>
+
+  <h3>Spring Boot thread dump analysis</h3>
+  <p>Spring Boot applications typically use an embedded Tomcat, Jetty, or Undertow server. Thread dumps from Spring Boot show http-nio-* or similar thread pool names. Thread Dump Doctor recognizes these pools and correctly classifies idle worker threads vs threads stuck in application code. Common Spring Boot issues detectable include HikariPool connection exhaustion, @Async executor saturation, and @Scheduled task blocking the scheduling thread.</p>
+
+  <h3>Tomcat thread dump analysis</h3>
+  <p>Apache Tomcat thread dumps show threads named http-nio-8080-exec-N. When all exec threads are busy, Tomcat queues or rejects new HTTP requests. Thread Dump Doctor detects Tomcat executor saturation and identifies whether threads are stuck in application code, waiting on database connections, or blocking on downstream HTTP calls.</p>
+
+  <h3>Jetty thread dump analysis</h3>
+  <p>Jetty uses a QueuedThreadPool with threads named qtp-N. Thread Dump Doctor analyzes Jetty thread dumps and identifies pool saturation, stuck application threads, and I/O blocking patterns within the Jetty thread model.</p>
+
+  <h3>OkHttp thread dump — dispatcher blocking</h3>
+  <p>OkHttp uses an internal Dispatcher with a thread pool for async calls. When user callbacks run on OkHttp's dispatcher threads and perform blocking operations (database calls, synchronous HTTP calls), they block OkHttp's I/O threads and prevent new responses from being processed. Thread Dump Doctor detects this callback-thread hijacking pattern specifically.</p>
+
+  <h3>Netty thread dump — event loop blocking</h3>
+  <p>Netty's event loop threads (named nioEventLoopGroup-N-M) must never block. When application code runs blocking operations on Netty's event loop — database queries, blocking HTTP calls, or Thread.sleep — it prevents the event loop from processing other I/O events. Thread Dump Doctor identifies threads running user code on Netty event loop threads.</p>
+
+  <h2>Database-related thread issues</h2>
+
+  <h3>JDBC connection pool exhaustion (HikariCP, c3p0, DBCP)</h3>
+  <p>Connection pool exhaustion is one of the most common causes of Java application slowdowns. When all database connections are leased and no idle connections remain, threads queue on pool acquisition. In a thread dump, this appears as multiple threads blocked in HikariPool.getConnection, c3p0.PooledConnection, or similar. The fix involves increasing pool size, setting acquisition timeouts, and fixing slow or leaked connections.</p>
+
+  <h3>Database query blocking Java threads</h3>
+  <p>Slow or locked database queries hold JDBC connections and the Java threads waiting for results. In a thread dump, threads blocked on PreparedStatement.execute, ResultSet.next, or OracleSocketReader indicate the application is waiting on the database. Thread Dump Doctor detects socket-read blocking which covers this pattern.</p>
+
+  <h2>Thread dump commands reference</h2>
+
+  <h3>How to take a thread dump with jstack</h3>
+  <p>jstack is the standard JDK tool for generating thread dumps. Usage: <code>jstack &lt;pid&gt; &gt; dump.txt</code>. Find the PID with jps or ps aux | grep java. For hung processes add the -F flag: <code>jstack -F &lt;pid&gt;</code>.</p>
+
+  <h3>How to take a thread dump with jcmd</h3>
+  <p>jcmd is the modern alternative to jstack. Usage: <code>jcmd &lt;pid&gt; Thread.print &gt; dump.txt</code>. In Docker containers where the JVM is PID 1: <code>jcmd 1 Thread.print</code>.</p>
+
+  <h3>How to take a thread dump with kill -3</h3>
+  <p>On Linux and macOS, sending SIGQUIT to a JVM process causes it to print a thread dump to its standard output. Usage: <code>kill -3 &lt;pid&gt;</code>. The output appears in the process's stdout/stderr — in a container, check docker logs. This method works even when jstack cannot attach.</p>
+
+  <h3>How to take a thread dump in a Docker container</h3>
+  <p>In a running Docker container: <code>docker exec &lt;container&gt; jstack &lt;pid&gt;</code> or <code>docker exec &lt;container&gt; jcmd 1 Thread.print</code> if the JVM is PID 1. If jstack is not in the container image, use <code>kill -3 &lt;pid&gt;</code> and check <code>docker logs &lt;container&gt;</code>.</p>
+
+  <h3>How to take a thread dump in Kubernetes</h3>
+  <p>In a Kubernetes pod: <code>kubectl exec &lt;pod&gt; -- jstack &lt;pid&gt;</code> or <code>kubectl exec &lt;pod&gt; -- jcmd 1 Thread.print</code>. Pipe and save: <code>kubectl exec &lt;pod&gt; -- jstack 1 &gt; dump.txt</code>.</p>
+
+  <h2>Java versions and thread dump compatibility</h2>
+  <p>Thread Dump Doctor supports thread dump formats from Java 8, Java 11, Java 17, and Java 21 (LTS versions). The HotSpot thread dump format has been stable across these versions. Java 21 introduced virtual threads (Project Loom); thread dumps from Java 21+ include virtual thread information which Thread Dump Doctor can parse.</p>
+
+  <h2>Alternatives to Thread Dump Doctor</h2>
+  <p>Other Java thread dump analyzers include: fastthread.io (online, requires upload), IBM Thread and Monitor Dump Analyzer (desktop app), Spotify thread dump analyzer (older open-source), VisualVM (full JVM profiler), IntelliJ IDEA's built-in thread dump viewer, and Eclipse's thread dump analyzer. Thread Dump Doctor differs by being 100% browser-based with no data upload, specifically targeting complex concurrency patterns like CompletableFuture self-deadlock.</p>
+
   <h2>Technology</h2>
-  <p>Thread Dump Doctor is a single standalone HTML file. The entire analyzer is implemented in approximately 600 lines of vanilla JavaScript with no backend, no framework, and no runtime dependencies beyond Google Fonts. It can be saved locally and used completely offline.</p>
+  <p>Thread Dump Doctor is a single standalone HTML file. The entire analyzer is implemented in vanilla JavaScript with no backend, no framework, and no runtime dependencies beyond Google Fonts. It can be saved locally and used completely offline.</p>
 
   <h2>Source and license</h2>
-  <p>Source code: https://github.com/kushagrasri/thread-dump-doctor</p>
+  <p>Source code: https://github.com/kushagrasri/thread-dump-doctor — open source, free to use and modify.</p>
 </article>
 
 <div class="top-app-bar">
