@@ -1,0 +1,21 @@
+{
+  "name": "Thread Dump Doctor",
+  "short_name": "TDD",
+  "description": "Free Java thread dump analyzer — detects deadlocks, pool saturation, I/O starvation, and lock contention. Runs 100% in your browser.",
+  "start_url": "/thread-dump-doctor/",
+  "scope": "/thread-dump-doctor/",
+  "display": "standalone",
+  "background_color": "#050608",
+  "theme_color": "#a8c7fa",
+  "lang": "en",
+  "categories": ["developer", "productivity", "utilities"],
+  "keywords": ["java", "thread dump", "jstack", "deadlock", "jvm", "performance", "debugging"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%23a8c7fa'/><path fill='none' stroke='%23001a41' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='M3 13h3l2-4 3 8 3-6 2 2h5'/></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

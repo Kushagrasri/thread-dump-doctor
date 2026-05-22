@@ -1,0 +1,53 @@
+# Thread Dump Doctor
+
+> A free, privacy-first Java thread dump analyzer that runs 100% in your browser. No data is ever uploaded or sent to any server.
+
+## What it does
+
+Thread Dump Doctor analyzes HotSpot JVM thread dumps (produced by `jstack` or `kill -3`) and instantly diagnoses common concurrency problems in Java applications.
+
+## URL
+
+https://kushagrasri.github.io/thread-dump-doctor/
+
+## Problems it detects
+
+- **Deadlocks** — JVM-reported deadlocks and classic A→B→A lock-cycle deadlocks
+- **Pool self-starvation** — threads inside a pool submitting tasks back to the same pool and blocking on `.get()` or `.join()` (Triangle B / CompletableFuture pattern)
+- **Socket-read starvation** — pool threads blocked on blocking socket reads (Triangle C)
+- **Callback-thread hijacking** — user callbacks running on upstream I/O threads (OkHttp, Netty)
+- **In-callback blocking** — `.join()` or `.get()` calls inside CompletableFuture callbacks
+- **Thread pool saturation** — all workers busy, no idle threads remaining
+- **ForkJoinPool.commonPool() overload** — shared pool heavily occupied, starving unrelated workloads
+- **Unbounded WAITING** — threads waiting with no timeout in user/application code
+- **Four-bucket triage** — classifies every thread into: noise, framework-idle, app-working, or app-stuck
+
+## Diff mode
+
+Upload two thread dumps taken ~30 seconds apart to detect threads that have not made progress — a reliable way to confirm a live stall or deadlock.
+
+## How to use
+
+1. Visit https://kushagrasri.github.io/thread-dump-doctor/
+2. Drag and drop a `.txt` file from `jstack <pid>` or `kill -3 <pid>`
+3. Click **Analyze**
+4. For diff mode, upload two files and click **Run two-dump diff**
+
+## Input formats supported
+
+- OpenJDK / Oracle JDK `jstack` output
+- `kill -3` signal output (HotSpot JVM)
+- VisualVM thread dump export
+- GraalVM (partial support)
+
+## Privacy
+
+All processing runs locally in JavaScript. No network requests are made with your thread dump data. The tool works fully offline after the page loads.
+
+## Technology
+
+Single standalone HTML file. No backend, no framework, no dependencies beyond Google Fonts. The entire analyzer is ~1000 lines of vanilla JavaScript.
+
+## Source
+
+https://github.com/kushagrasri/thread-dump-doctor
