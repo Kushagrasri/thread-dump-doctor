@@ -3,7 +3,171 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Thread Dump Doctor</title>
+
+  <!-- ── Primary SEO ── -->
+  <title>Thread Dump Doctor — Free Java Thread Dump Analyzer (jstack, Deadlock, Pool)</title>
+  <meta name="description" content="Upload a Java thread dump and instantly detect deadlocks, pool saturation, I/O starvation, lock contention, and CompletableFuture self-deadlocks. Runs 100% in your browser — no data ever leaves your machine. Free and open source.">
+  <meta name="keywords" content="java thread dump analyzer, jstack analyzer, thread dump parser, deadlock detector, java deadlock, thread dump tool, jvm thread analyzer, java performance, thread pool saturation, lock contention analyzer, java debugging tool, completablefuture deadlock, forkjoinpool analyzer, jvm concurrency debugger, java thread starvation, kill -3 analyzer, visualvm alternative, java blocked threads, timed_waiting analyzer, java waiting threads">
+  <meta name="author" content="Thread Dump Doctor">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <link rel="canonical" href="https://kushagrasri.github.io/thread-dump-doctor">
+
+  <!-- ── Open Graph (social sharing) ── -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kushagrasri.github.io/thread-dump-doctor">
+  <meta property="og:site_name" content="Thread Dump Doctor">
+  <meta property="og:title" content="Thread Dump Doctor — Free Java Thread Dump Analyzer">
+  <meta property="og:description" content="Instantly analyze Java thread dumps for deadlocks, pool saturation, I/O starvation, and lock contention. Runs entirely in your browser — private and offline.">
+  <meta property="og:image" content="https://kushagrasri.github.io/thread-dump-doctor/og-image.png">
+  <meta property="og:locale" content="en_US">
+
+  <!-- ── Twitter Card ── -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@kushagrasri">
+  <meta name="twitter:title" content="Thread Dump Doctor — Free Java Thread Dump Analyzer">
+  <meta name="twitter:description" content="Instantly analyze Java thread dumps for deadlocks, pool saturation, I/O starvation, and lock contention. Runs entirely in your browser — private and offline.">
+  <meta name="twitter:image" content="https://kushagrasri.github.io/thread-dump-doctor/og-image.png">
+
+  <!-- ── Structured Data (JSON-LD) — WebApplication ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Thread Dump Doctor",
+    "url": "https://kushagrasri.github.io/thread-dump-doctor",
+    "description": "A free, privacy-first Java thread dump analyzer that runs entirely in your browser. Detects deadlocks, thread pool saturation, I/O starvation, lock contention, ForkJoin pool hijack, CompletableFuture self-deadlock, unbounded waits, and more from jstack or kill -3 output.",
+    "applicationCategory": "DeveloperApplication",
+    "applicationSubCategory": "Java Performance Debugging",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires JavaScript",
+    "isAccessibleForFree": true,
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Java deadlock detection",
+      "JVM-reported deadlock parsing",
+      "Classic A→B→A lock-cycle deadlock detection",
+      "Thread pool saturation analysis",
+      "CompletableFuture self-deadlock detection (pool self-starvation)",
+      "I/O starvation detection (socket-read blocking)",
+      "Lock contention chain analysis",
+      "ForkJoinPool commonPool hijack detection",
+      "Callback-thread hijacking detection (OkHttp, Netty)",
+      "In-callback blocking (.join()/.get()) detection",
+      "Unbounded WAITING thread detection",
+      "Four-bucket triage: noise / framework-idle / app-working / app-stuck",
+      "Two-dump diff mode for detecting stalled threads",
+      "100% offline — no data sent to server",
+      "Supports jstack and kill -3 output formats",
+      "Supports VisualVM thread dump export"
+    ],
+    "keywords": "java thread dump, jstack, deadlock, thread pool saturation, lock contention, completablefuture deadlock, forkjoinpool, java performance debugging, jvm concurrency",
+    "sameAs": [
+      "https://github.com/kushagrasri/thread-dump-doctor"
+    ]
+  }
+  </script>
+
+  <!-- ── Structured Data (JSON-LD) — FAQPage for AI/voice search ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Thread Dump Doctor?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Thread Dump Doctor is a free, browser-based tool that analyzes Java thread dumps (from jstack or kill -3) to detect deadlocks, thread pool saturation, I/O starvation, lock contention, CompletableFuture self-deadlocks, and more. All processing happens locally — no data is uploaded."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I analyze a Java thread dump?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Visit Thread Dump Doctor at https://kushagrasri.github.io/thread-dump-doctor, drag and drop your .txt thread dump file (from jstack or kill -3), and click Analyze. Results appear instantly with severity-ranked findings and recommended actions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What problems can Thread Dump Doctor detect?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Thread Dump Doctor detects: Java deadlocks (JVM-reported and lock-cycle), thread pool saturation, CompletableFuture self-deadlock (pool self-starvation), socket-read I/O starvation, callback-thread hijacking (OkHttp/Netty), in-callback blocking (.join()/.get()), ForkJoinPool commonPool overload, and unbounded WAITING threads."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Thread Dump Doctor free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Thread Dump Doctor is completely free and open source. There is no sign-up, no account, and no cost."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my thread dump data private?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Thread Dump Doctor runs entirely in your browser using JavaScript. Your thread dump file is never uploaded to any server. It works fully offline after the page loads."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between Analyze and Diff mode?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Analyze mode processes a single thread dump and reports all detected issues. Diff mode compares two thread dumps taken ~30 seconds apart and identifies threads that have not made progress — useful for confirming a live stall or deadlock."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What thread dump formats does Thread Dump Doctor support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Thread Dump Doctor supports OpenJDK and Oracle JDK jstack output, HotSpot kill -3 signal output, and VisualVM thread dump exports. Partial support for GraalVM native image thread dumps."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- ── Structured Data (JSON-LD) — SoftwareApplication (alternate type) ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Thread Dump Doctor",
+    "url": "https://kushagrasri.github.io/thread-dump-doctor",
+    "description": "Free Java thread dump analyzer. Detects deadlocks, pool saturation, I/O starvation, and lock contention. Runs in browser.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5",
+      "ratingCount": "1"
+    }
+  }
+  </script>
+
+  <!-- ── PWA Manifest ── -->
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#a8c7fa">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Thread Dump Doctor">
+
+  <!-- ── Favicon ── -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%23a8c7fa'/><path fill='none' stroke='%23001a41' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='M3 13h3l2-4 3 8 3-6 2 2h5'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -404,6 +568,66 @@
   </style>
 </head>
 <body>
+
+<!-- ── Rich semantic content for search engines and AI crawlers ── -->
+<article id="seo-content" aria-hidden="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
+  <h1>Thread Dump Doctor — Free Java Thread Dump Analyzer</h1>
+  <p>Thread Dump Doctor is a free, open-source, privacy-first tool for analyzing Java thread dumps directly in your browser. No data is ever uploaded or sent to a server. It works fully offline after the page loads.</p>
+
+  <h2>What is a Java thread dump?</h2>
+  <p>A Java thread dump is a snapshot of all threads running in a JVM at a given moment. It includes each thread's name, state (RUNNABLE, WAITING, TIMED_WAITING, BLOCKED), and full stack trace. Thread dumps are produced using jstack, kill -3, or VisualVM and are the primary diagnostic tool for investigating Java application hangs, deadlocks, and high CPU usage.</p>
+
+  <h2>What problems does Thread Dump Doctor detect?</h2>
+  <ul>
+    <li><strong>Java deadlocks</strong> — JVM-reported deadlocks and classic A→B→A lock-cycle deadlocks where two or more threads are each waiting for a lock held by the other.</li>
+    <li><strong>CompletableFuture self-deadlock (pool self-starvation)</strong> — threads inside a thread pool submitting tasks back to the same pool and blocking with .get() or .join(), exhausting all workers (Triangle B pattern).</li>
+    <li><strong>Socket-read I/O starvation</strong> — pool threads blocked on blocking socket reads (SocketInputStream.read, NioSocketImpl.read), preventing other work from proceeding (Triangle C pattern).</li>
+    <li><strong>Callback-thread hijacking</strong> — user callbacks running on upstream I/O threads (OkHttp, Netty), delaying I/O processing for the entire application.</li>
+    <li><strong>In-callback blocking</strong> — .join() or .get() calls inside CompletableFuture callbacks, which can deadlock the entire callback chain.</li>
+    <li><strong>Thread pool saturation</strong> — all workers in a named thread pool are active with zero idle threads, preventing new work from being accepted.</li>
+    <li><strong>ForkJoinPool.commonPool() overload</strong> — the JVM's shared pool is heavily occupied, starving unrelated parallelStream() calls and other JDK consumers.</li>
+    <li><strong>Unbounded WAITING threads</strong> — application threads waiting indefinitely with no timeout, which can cause resource leaks and invisible hangs.</li>
+    <li><strong>Four-bucket triage</strong> — every thread is classified into one of four categories: noise (GC, VM threads), framework-idle (waiting in pool queues), app-working (RUNNABLE user code), or app-stuck (BLOCKED/WAITING in user code).</li>
+  </ul>
+
+  <h2>How to use Thread Dump Doctor</h2>
+  <ol>
+    <li>Generate a thread dump using <code>jstack &lt;pid&gt;</code> or <code>kill -3 &lt;pid&gt;</code> and save it as a .txt file.</li>
+    <li>Visit Thread Dump Doctor at https://kushagrasri.github.io/thread-dump-doctor</li>
+    <li>Drag and drop the file onto the upload area, or click to browse.</li>
+    <li>Click the Analyze button. Results appear within milliseconds.</li>
+    <li>Review severity-ranked findings (Critical, Warning, Info) with recommended actions.</li>
+  </ol>
+
+  <h2>Two-dump diff mode</h2>
+  <p>Upload two thread dumps taken approximately 30 seconds apart. Thread Dump Doctor compares them and highlights threads that have not made any stack progress between the two snapshots. This is the most reliable way to confirm a live stall or deadlock, as opposed to a momentary pause.</p>
+
+  <h2>Frequently asked questions</h2>
+
+  <h3>Is Thread Dump Doctor free?</h3>
+  <p>Yes. Thread Dump Doctor is completely free. There is no sign-up, no account, and no cost. It is open source.</p>
+
+  <h3>Is my thread dump data private?</h3>
+  <p>Yes. All analysis runs locally in JavaScript inside your browser. Your thread dump file is never sent to any server or third party. The tool works fully offline after the initial page load.</p>
+
+  <h3>What thread dump formats are supported?</h3>
+  <p>Thread Dump Doctor supports OpenJDK jstack output, Oracle JDK jstack output, HotSpot kill -3 signal output, and VisualVM thread dump exports. Partial support for GraalVM native image thread dumps.</p>
+
+  <h3>How is Thread Dump Doctor different from other thread dump analyzers?</h3>
+  <p>Thread Dump Doctor runs 100% in the browser with no server upload required, making it safe for analyzing production thread dumps containing sensitive class names and application data. It specifically detects complex patterns like CompletableFuture self-deadlock and callback-thread hijacking that most other tools miss.</p>
+
+  <h3>What is pool self-starvation?</h3>
+  <p>Pool self-starvation occurs when all threads in a thread pool are blocked waiting for results of tasks that are queued behind them in the same pool. Because all workers are occupied waiting, the queued tasks can never run, creating a deadlock. This is especially common with CompletableFuture chains that use a fixed-size executor.</p>
+
+  <h3>How do I generate a thread dump?</h3>
+  <p>On Linux/macOS: run <code>jstack &lt;pid&gt; &gt; dump.txt</code> or <code>kill -3 &lt;pid&gt;</code> (output goes to the JVM's stdout/stderr). On Windows: use <code>jstack &lt;pid&gt;</code> or VisualVM. In containers: use <code>jcmd &lt;pid&gt; Thread.print</code>.</p>
+
+  <h2>Technology</h2>
+  <p>Thread Dump Doctor is a single standalone HTML file. The entire analyzer is implemented in approximately 600 lines of vanilla JavaScript with no backend, no framework, and no runtime dependencies beyond Google Fonts. It can be saved locally and used completely offline.</p>
+
+  <h2>Source and license</h2>
+  <p>Source code: https://github.com/kushagrasri/thread-dump-doctor</p>
+</article>
 
 <div class="top-app-bar">
   <div class="brand-icon"><span class="material-symbols-outlined">stethoscope</span></div>
