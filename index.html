@@ -565,6 +565,32 @@
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
     }
+
+    /* ---- Footer ---- */
+    .site-footer {
+      margin-top: 48px;
+      padding: 20px 28px;
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px;
+      font-size: 13px; color: var(--md-sys-color-on-surface-variant);
+    }
+    .site-footer a.linkedin-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--md-sys-color-primary);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 999px;
+      transition: background 0.15s;
+    }
+    .site-footer a.linkedin-link:hover {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+    .site-footer .linkedin-icon {
+      width: 16px; height: 16px; flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -661,6 +687,17 @@
 
   <div id="out"></div>
 </main>
+
+<footer class="site-footer">
+  <span>Built by</span>
+  <a class="linkedin-link" href="https://www.linkedin.com/in/kushagrasri" target="_blank" rel="noopener noreferrer">
+    <!-- LinkedIn logo SVG -->
+    <svg class="linkedin-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+    </svg>
+    Kushagra Srivastava
+  </a>
+</footer>
 
 <script>
 /* ============================================================
